@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./djangoautotel_backend
+    command: ["sh", "-c", "while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000"]
+    volumes:
+      - ./djangoautotel_backend:/usr/src/djangoautotel_backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_NAME: django_db
+      DATABASE_USER: django_user
+      DATABASE_PASSWORD: django_password
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: django_db
+      POSTGRES_USER: django_user
+      POSTGRES_PASSWORD: django_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
